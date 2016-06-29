@@ -5,6 +5,7 @@ var clientId = 'BEIh893DAx3exwrk8RxBGQJsHHWMbLeq'
 var callbackUrl = 'http%3A%2F%2Fmycloud-staging.autodesk.com%3A3000%2Fauthcallback'
 var adskServiceBaseUrl = "https://developer.api.autodesk.com/";
 var scope = "data:read data:write data:create data:search bucket:create bucket:read bucket:update bucket:delete code:all account:read account:write user-profile:read";
+var currentThreadName = "Hello World";
 
 var adskAjax = function(accessToken, apiPath, version, path, method, contentType, dataObject) {
     var url = adskServiceBaseUrl + apiPath + "/" + version + "/" + path;
@@ -66,12 +67,26 @@ var createCommentsHtml = function(comments) {
         $comments.append($comment);
     }
     $commentsDiv.append($comments);
+
+    //thread info
+    var $threadInfo = $("#threadInfo");
+    $threadInfo.empty();
+    var $info = $("<h3>" + currentThreadName + "</h3>");
+    $threadInfo.append($info);
 };
 
 var loadCommentsOnPage = function(accessToken, urn) {
     var ajaxLoadCall = getCommentsAjax(accessToken, urn);
     ajaxLoadCall.done(createCommentsHtml);
 };
+
+var threadClickHandler = function(data){
+    currentThreadName = data.friendly_name;
+    defaultUrn = data.urn;
+    loadCommentsOnPage(globalAccessToken, defaultUrn);
+    
+    console.log(data);
+}
 
 var createThreadHtml = function(threads) {
     var $threadDiv = $("#threads");
@@ -80,7 +95,11 @@ var createThreadHtml = function(threads) {
     var $threads = $("<ul></ul>");
     for (var i = 0; i < threads.data.length; ++i) {
         var thisThread = threads.data[i];
-        var $thread = $("<li><h3>" + thisThread.friendly_name + "</h3> Subject:" + thisThread.subject + " Channel:" + thisThread.channel + " Subkey:" + thisThread.subkey +  "</li>");
+        var $thread = $("<li><h3>" + thisThread.friendly_name + "</h3></li>");
+            // Subject:" + thisThread.subject + " Channel:" + thisThread.channel + " Subkey:" + thisThread.subkey +  "</li>");
+        $thread.click(function(thread) {
+            threadClickHandler(thread);
+        }.bind(null, thisThread));
         $threads.append($thread);
     }
     $threadDiv.append($threads);
@@ -112,39 +131,38 @@ var onSubmitComment = function() {
  
 var onSubmitUrl = function() {
 
-    var code = $("#Subject").val();
+    currentThreadName = $("#FriendlyName").val();
+    var subject = $("#Subject").val();
     var channel = $("#Channel").val();
-    var subkey = $("#Subkey").val();
-    var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 code: ' + code + ' channel: ' + channel + ' subkey: ' + subkey;
+    var category = $("#Subkey").val();
+    var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 channel: ' + channel + ' category: ' + category + ' subject: ' + subject;
     var newURN = btoa(urnVal);
     
-    $("#prevOutput").val(defaultUrn);
-    var $UrnOutput = $("#UrnOutput").val(urnVal);
     defaultUrn = newURN;
-    $("#currOutput").val(defaultUrn);
     loadCommentsOnPage(globalAccessToken, defaultUrn);
 }
 
 var onSaveUrn = function() {
     var friendlyName = $("#FriendlyName").val();
-    var code = $("#Subject").val();
+    currentThreadName = friendlyName;
+    var subject = $("#Subject").val();
     var channel = $("#Channel").val();
-    var subkey = $("#Subkey").val();
-    var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 code: ' + code + ' channel: ' + channel + ' subkey: ' + subkey;
+    var category = $("#Subkey").val();
+    var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 channel: ' + channel + ' category: ' + category + ' subject: ' + subject;
     var newURN = btoa(urnVal);
 
     var channelObject = {};
     channelObject.userid = 12345;
     channelObject.friendly_name = friendlyName;
-    channelObject.subject = code;
+    channelObject.subject = subject;
     channelObject.channel = channel;
-    channelObject.subkey = subkey;
+    channelObject.subkey = category;
     channelObject.urn = newURN;
 
-    $("#prevOutput").val(defaultUrn);
-    var $UrnOutput = $("#UrnOutput").val(urnVal);
+//    $("#prevOutput").val(defaultUrn);
+//    var $UrnOutput = $("#UrnOutput").val(urnVal);
     defaultUrn = newURN;
-    $("#currOutput").val(defaultUrn);
+//    $("#currOutput").val(defaultUrn);
     loadCommentsOnPage(globalAccessToken, defaultUrn);
 
     postPGChannelAjax(channelObject);

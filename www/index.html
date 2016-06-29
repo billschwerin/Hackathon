@@ -27,19 +27,21 @@
     <div id="authArea"></div> <br>
     <div id="urnArea">
         <label for="FriendlyName">Name </label><input id="FriendlyName" type="text" placeholder="Thread Name"></input> <br>
-        <label for="Subject">Subject </label><input id="Subject" type="text" placeholder="Subject"></input> <br>
         <label for="Channel">Channel </label><input id="Channel" type="text" placeholder="Channel"></input> <br>
-        <label for="Subkey">Subkey </label><input id="Subkey" type="text" placeholder="SubKey (optional)"></input> <br>
-        <button onclick="onSubmitUrl()">Set Thread</button> <button onclick="onSaveUrn()">Save Thread</button>
+        <label for="Subkey">Category </label><input id="Subkey" type="text" placeholder="Category"></input> <br>
+        <label for="Subject">Subject </label><input id="Subject" type="text" placeholder="Subject"></input> <br>
+        <button onclick="onSaveUrn()">Save Thread</button>
     </div>
     <div id = "urn">
-        <br>
+        <!--<br>
         <label for="UrnOutput">Urn string </label><input id="UrnOutput" type="text" readonly placeholder="URN..." size = "150"></input><br>
         <label for="prevOutput">Previous Urn </label><input id="prevOutput" type="text" readonly placeholder="URN..." size = "150"></input><br>
-        <label for="currOutput">Current Urn  </label><input id="currOutput" type="text" readonly placeholder="URN..." size = "150"></input>
+        <label for="currOutput">Current Urn  </label><input id="currOutput" type="text" readonly placeholder="URN..." size = "150"></input>-->
     </div> 
     <br>
     <div id="commentsArea">
+        <div id = "threadInfo"></div>
+
         <form onSubmit="return onSubmitComment();">
             <input id="commentInput" type="text" placeholder="comment..."></input>
             <input type="submit"></input>
