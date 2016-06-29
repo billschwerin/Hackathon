@@ -1,0 +1,27 @@
+{
+
+  "migration_id": 2016062720130778,
+
+  "models": {
+
+    "Channel": {
+
+      "table": "channels",
+
+      "columns": [
+        {"name": "id", "type": "serial", "properties": {"nullable":false,"primary_key":true,"auto_increment":true}},
+        {"name": "userid", "type": "int", "properties": {}},
+        {"name": "friendly_name", "type": "string", "properties": {}},
+        {"name": "urn", "type": "string", "properties": {}},
+        {"name": "subject", "type": "string", "properties": {}},
+        {"name": "channel", "type": "string", "properties": {}},
+        {"name": "subkey", "type": "string", "properties": {}},
+        {"name": "created_at", "type": "datetime", "properties": {}},
+        {"name": "updated_at", "type": "datetime", "properties": {}}
+      ]
+
+    }
+
+  }
+
+}
