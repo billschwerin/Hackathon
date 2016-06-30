@@ -1,7 +1,5 @@
-var currentUrn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmVpaDg5M2RheDNleHdyazhyeGJncWpzaGh3bWJsZXEyMDE2MDYyN3QxNDE4MTk4NDd6L0F1Lm9iag==';
 var adskServiceBaseUrl = "https://developer.api.autodesk.com/";
-var currentThreadName = "";
-var displayingFavorites = true;
+var currentThread = {};
 
 var adskAjax = function(accessToken, apiPath, version, path, method, contentType, dataObject) {
     var url = adskServiceBaseUrl + apiPath + "/" + version + "/" + path;
@@ -68,12 +66,14 @@ var createCommentsHtml = function(comments) {
     //thread info
     var $threadInfo = $("#threadInfo");
     $threadInfo.empty();
-    var $info = $("<h3>Thread: " + currentThreadName + "</h3>");
+    var $info = $("<h3>Thread: " + currentThread.friendly_name + "</h3>");
     $threadInfo.append($info);
+
+    $("#FavoriteCheckbox").prop("checked", currentThread.favorite) ;
 };
 
-var loadCommentsOnPage = function(accessToken, urn) {
-    var ajaxLoadCall = getCommentsAjax(accessToken, urn);
+var loadCommentsOnPage = function(accessToken) {
+    var ajaxLoadCall = getCommentsAjax(accessToken, currentThread.urn);
     ajaxLoadCall.done(createCommentsHtml);
 };
 
@@ -82,9 +82,8 @@ var loadCommentsOnPage = function(accessToken, urn) {
 
 
 var threadClickHandler = function(data){
-    currentThreadName = data.friendly_name;
-    currentUrn = data.urn;
-    loadCommentsOnPage(globalAccessToken, currentUrn);
+    currentThread = data
+    loadCommentsOnPage(globalAccessToken);
 }
 
 var createThreadHtml = function(threads) {
@@ -108,13 +107,6 @@ var createThreadHtml = function(threads) {
 };
 
 var loadThreadsOnPage = function(query) {
-    if (displayingFavorites){
-        if(query){
-            query = query + '&favorite=true';
-        } else {
-            query = '?favorite=true';
-        }
-    }
 
     var url = "http://localhost:3000/channels";
     if(query)
@@ -135,9 +127,9 @@ var onSubmitComment = function() {
     $commentInput.val('');
 
     var newComment = { body: newCommentBody };
-    var postAjax = postCommentAjax(globalAccessToken, currentUrn, newComment)
+    var postAjax = postCommentAjax(globalAccessToken, currentThread.urn, newComment)
     postAjax.done(function() {
-        loadCommentsOnPage(globalAccessToken, currentUrn);
+        loadCommentsOnPage(globalAccessToken);
     });
 
     return false;
@@ -147,10 +139,10 @@ var onSubmitComment = function() {
 
 var onSaveUrn = function() {
     var friendlyName = $("#FriendlyName").val();
-    currentThreadName = friendlyName;
     var subject = $("#Subject").val();
     var channel = $("#Channel").val();
     var category = $("#Category").val();
+    var checked =  $("#Favorites").prop("checked");
     var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 channel: ' + channel + ' category: ' + category + ' subject: ' + subject;
     var newURN = btoa(urnVal);
 
@@ -160,12 +152,12 @@ var onSaveUrn = function() {
     channelObject.subject = subject;
     channelObject.channel = channel;
     channelObject.category = category;
+    channelObject.favorite = checked;
     channelObject.urn = newURN;
 
+    currentThread = channelObject;
 
-    currentUrn = newURN;
-
-    loadCommentsOnPage(globalAccessToken, currentUrn);
+    loadCommentsOnPage(globalAccessToken);
 
     var addChannel = postPGChannelAjax(channelObject);
     addChannel.done(function(){
@@ -173,26 +165,19 @@ var onSaveUrn = function() {
     });
 }
 
-var onDisplayFilterThreads = function(){
-    displayingFavorites = false;
-    onFilterThreads();
-}
-
-var onDisplayFavoriteThreads = function(){
-    displayingFavorites = true;
-    onClearFilter();
-}
-
 var onFilterThreads = function() {
     var friendlyName = $("#FriendlyName").val();
     var subject = $("#Subject").val();
     var channel = $("#Channel").val();
     var category = $("#Category").val();
-
+    var checked =  $("#Favorites").prop("checked");
     var query = '?friendly_name__like=%'+ friendlyName +
                 '%&channel__like=%' + channel +
                 '%&category__like=%' + category +
                 '%&subject__like=%' + subject + '%';
+    if(checked){
+        query = query + '&favorite=true';
+    }
                 
     loadThreadsOnPage(query);
 }
@@ -202,8 +187,13 @@ var onClearFilter = function() {
     $("#Subject").val('');
     $("#Channel").val('');
     $("#Category").val('');
-
+    $("#Favorites").prop("checked", false);
     loadThreadsOnPage();
+}
+
+var onToggleFavorite = function(){
+    var checked =  $("#FavoriteCheckbox").prop("checked");
+    console.log(checked);
 }
 
 $(document).ready(function () {
