@@ -31,13 +31,19 @@ module.exports = (function() {
 
     create() {
 
-      Channel.create(this.params.body, (err, model) => {
+      Channel.findOrCreateBy('urn', this.params.body, (err, model) => {
 
         this.respond(err || model);
 
       });
 
     }
+
+        // create() {
+    //   findOrCreateBy('urn', this.params.body, (err, model) => {
+    //     this.respond(err || model);
+    //   });
+    // 
 
     update() {
 

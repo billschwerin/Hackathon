@@ -8,57 +8,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Hackathon</title>
-    <link rel="stylesheet" href="/css/main.css">
+        <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!--<link rel="stylesheet" href="/css/main.css">-->
 
-    <script   src="https://code.jquery.com/jquery-3.0.0.min.js"   integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>
-
+    <!--<script   src="https://code.jquery.com/jquery-3.0.0.min.js"   integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>-->
+    <script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
     <!-- <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" /> -->
 
-    <!--
-        <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.min.css" type="text/css">
-        <link rel="stylesheet" href="https://developer.api.autodesk.com/viewingservice/v1/viewers/A360.css" type="text/css">
-        <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js"></script>
-    <script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/Autodesk360App.js"></script>
-    -->
     <script src="/js/index.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-linkify/1.1.7/jquery.linkify.min.js"></script>
+    <!--<script src="./node_modules/linkifyjs/dist/linkify-jquery.min.js"></script>-->
+
 </head>
 
 <body>
-    <div id="authArea"></div> <br>
-    <div id="urnArea">
-        <label for="FriendlyName">Name </label><input id="FriendlyName" type="text" placeholder="Thread Name"></input> <br>
-        <label for="Channel">Channel </label><input id="Channel" type="text" placeholder="Channel"></input> <br>
-        <label for="Subkey">Category </label><input id="Subkey" type="text" placeholder="Category"></input> <br>
-        <label for="Subject">Subject </label><input id="Subject" type="text" placeholder="Subject"></input> <br>
-        <button onclick="onSaveUrn()">Save Thread</button>
+    <div class="col-md-4">
+    <!--<div id="authArea"></div> <br>-->
+    <div  id="urnArea">
+        <table class="table table-hover">
+        <tr><td><label for="FriendlyName">Name: </label></td><td><input id="FriendlyName" type="text" placeholder="Thread Name"></input></td></tr>
+        <tr><td><label for="Channel">Channel: </label></td><td><input id="Channel" type="text" placeholder="Channel"></input></td></tr>
+        <tr><td><label for="Category">Category: </label></td><td><input id="Category" type="text" placeholder="Category"></input></td></tr>
+        <tr><td><label for="Subject">Subject: </label></td><td><input id="Subject" type="text" placeholder="Subject"></input></td></tr>
+        </table>
+        <table class="table">
+        <tr><td>
+        <button class = "btn btn-primary btn-block" onclick="onFilterThreads()">Search</button></td>
+        <td><button class = "btn btn-primary btn-block" onclick="onClearFilter()">Clear</button></td>
+        <td><button class = "btn btn-primary btn-block" onclick="onSaveUrn()">Create</button></td></tr>
+        </table>
+
     </div>
-    <div id = "urn">
-        <!--<br>
-        <label for="UrnOutput">Urn string </label><input id="UrnOutput" type="text" readonly placeholder="URN..." size = "150"></input><br>
-        <label for="prevOutput">Previous Urn </label><input id="prevOutput" type="text" readonly placeholder="URN..." size = "150"></input><br>
-        <label for="currOutput">Current Urn  </label><input id="currOutput" type="text" readonly placeholder="URN..." size = "150"></input>-->
-    </div> 
-    <br>
-    <div id="commentsArea">
-        <div id = "threadInfo"></div>
+    <div id = "favoritesFilter">
+        <table><tr>
+        <td><button class = "btn btn-primary btn-block" onclick="onDisplayFavoriteThreads()">Favorites</button></td>
+        <td><button class = "btn btn-primary btn-block" onclick="onDisplayFilterThreads()">SearchResults</button></td></tr></table>
+    </div>
+    <div  id = "threads">
+    </div>
+    </div>
+    <div class="col-md-8" id="commentsArea">
+        <input type = "checkbox" id="FavoriteCheckbox"/><div id = "threadInfo"><h3>Thread: </h3></div>
 
         <form onSubmit="return onSubmitComment();">
             <input id="commentInput" type="text" placeholder="comment..."></input>
-            <input type="submit"></input>
+            <input type="submit" class = "btn btn-primary"></input>
         </form>
         <div id="comments"></div>
-    </div> 
-    <div id = "threads">
-    </div>
-    <!-- This is where your viewer should attach -->
-    <!--<div id = "webDiv">
-        <iframe id="webViewer" src="http://plmeast.ecs.ads.autodesk.com/AutodeskTC/plmeast.ecs.ads.autodesk.com/Project_Mayhem#/Entity/Details?id=mRklMRTpMQVRFU1Q6NTYyOTM&itemtype=File" style="position: absolute; height: 95%; width: 65%;  border: none"></iframe>
-    </div>-->
-   <hr>
-
-  
-    
-   
+    </div>    
 </body>
 
 </html>

@@ -10,12 +10,12 @@
 
       "columns": [
         {"name": "id", "type": "serial", "properties": {"nullable":false,"primary_key":true,"auto_increment":true}},
-        {"name": "userid", "type": "int", "properties": {}},
         {"name": "friendly_name", "type": "string", "properties": {}},
         {"name": "urn", "type": "string", "properties": {}},
         {"name": "subject", "type": "string", "properties": {}},
         {"name": "channel", "type": "string", "properties": {}},
-        {"name": "subkey", "type": "string", "properties": {}},
+        {"name": "category", "type": "string", "properties": {}},
+        {"name": "favorite", "type": "boolean", "properties": {}},
         {"name": "created_at", "type": "datetime", "properties": {}},
         {"name": "updated_at", "type": "datetime", "properties": {}}
       ]

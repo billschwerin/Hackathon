@@ -8,6 +8,8 @@
     "node": "6.0.0"
   },
   "dependencies": {
+    "bootstrap": "^3.3.6",
+    "linkifyjs": "^2.0.3",
     "nodal": "0.11.0"
   },
   "devDependencies": {

@@ -14,7 +14,7 @@ module.exports = (function() {
     up() {
 
       return [
-        this.createTable("channels", [{"name":"userid","type":"int"},{"name":"friendly_name","type":"string"},{"name":"urn","type":"string"}, {"name":"subject","type":"string"}, {"name":"channel","type":"string"}, {"name":"subkey","type":"string"}])
+        this.createTable("channels", [{"name":"friendly_name","type":"string"},{"name":"urn","type":"string"}, {"name":"subject","type":"string"}, {"name":"channel","type":"string"}, {"name":"category","type":"string"}, {"name":"favorite","type":"boolean"}])
       ];
 
     }

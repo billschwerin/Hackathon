@@ -1,11 +1,7 @@
-//var defaultUrn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWwyMDE2LTA2LTIzLTE4LTQ4LTE0aHR0cDovL3d3dy5jbm4uY29tNDZhODBhNzUtNTUyNS00YTE0LTQ3YmItNWU5OGViZjk1ODRh';
-var defaultUrn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmVpaDg5M2RheDNleHdyazhyeGJncWpzaGh3bWJsZXEyMDE2MDYyN3QxNDE4MTk4NDd6L0F1Lm9iag==';
-var clientId = 'BEIh893DAx3exwrk8RxBGQJsHHWMbLeq'
-//var clientId = 'UevAemQT1BdgNeJtPqlqy2DZoEL9fqaU'
-var callbackUrl = 'http%3A%2F%2Fmycloud-staging.autodesk.com%3A3000%2Fauthcallback'
+var currentUrn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmVpaDg5M2RheDNleHdyazhyeGJncWpzaGh3bWJsZXEyMDE2MDYyN3QxNDE4MTk4NDd6L0F1Lm9iag==';
 var adskServiceBaseUrl = "https://developer.api.autodesk.com/";
-var scope = "data:read data:write data:create data:search bucket:create bucket:read bucket:update bucket:delete code:all account:read account:write user-profile:read";
-var currentThreadName = "Hello World";
+var currentThreadName = "";
+var displayingFavorites = true;
 
 var adskAjax = function(accessToken, apiPath, version, path, method, contentType, dataObject) {
     var url = adskServiceBaseUrl + apiPath + "/" + version + "/" + path;
@@ -64,6 +60,7 @@ var createCommentsHtml = function(comments) {
     var $comments = $("<ul></ul>");
     for (var i = 0; i < comments.length; ++i) {
         var $comment = $("<li>" + comments[i].body + "</li>");
+        $comment.linkify();
         $comments.append($comment);
     }
     $commentsDiv.append($comments);
@@ -71,7 +68,7 @@ var createCommentsHtml = function(comments) {
     //thread info
     var $threadInfo = $("#threadInfo");
     $threadInfo.empty();
-    var $info = $("<h3>" + currentThreadName + "</h3>");
+    var $info = $("<h3>Thread: " + currentThreadName + "</h3>");
     $threadInfo.append($info);
 };
 
@@ -80,12 +77,14 @@ var loadCommentsOnPage = function(accessToken, urn) {
     ajaxLoadCall.done(createCommentsHtml);
 };
 
+
+
+
+
 var threadClickHandler = function(data){
     currentThreadName = data.friendly_name;
-    defaultUrn = data.urn;
-    loadCommentsOnPage(globalAccessToken, defaultUrn);
-    
-    console.log(data);
+    currentUrn = data.urn;
+    loadCommentsOnPage(globalAccessToken, currentUrn);
 }
 
 var createThreadHtml = function(threads) {
@@ -95,7 +94,10 @@ var createThreadHtml = function(threads) {
     var $threads = $("<ul></ul>");
     for (var i = 0; i < threads.data.length; ++i) {
         var thisThread = threads.data[i];
-        var $thread = $("<li><h3>" + thisThread.friendly_name + "</h3></li>");
+        var nl = '&#013;';
+        var $thread = $('<li><a title="Channel: ' + thisThread.channel + nl 
+            + 'Category: ' + thisThread.category + nl + 'Subject: ' + thisThread.subject + '">' + thisThread.friendly_name + '</a></li>');
+
             // Subject:" + thisThread.subject + " Channel:" + thisThread.channel + " Subkey:" + thisThread.subkey +  "</li>");
         $thread.click(function(thread) {
             threadClickHandler(thread);
@@ -105,10 +107,22 @@ var createThreadHtml = function(threads) {
     $threadDiv.append($threads);
 };
 
-var loadThreadsOnPage = function() {
+var loadThreadsOnPage = function(query) {
+    if (displayingFavorites){
+        if(query){
+            query = query + '&favorite=true';
+        } else {
+            query = '?favorite=true';
+        }
+    }
+
+    var url = "http://localhost:3000/channels";
+    if(query)
+        url = url + query;
     var ajaxSettings = {
-        url: "http://localhost:3000/channels",
+        url: url ,
         method: "GET",
+
     };
 
     var getThreadCall = $.ajax(ajaxSettings);
@@ -121,33 +135,22 @@ var onSubmitComment = function() {
     $commentInput.val('');
 
     var newComment = { body: newCommentBody };
-    var postAjax = postCommentAjax(globalAccessToken, defaultUrn, newComment)
+    var postAjax = postCommentAjax(globalAccessToken, currentUrn, newComment)
     postAjax.done(function() {
-        loadCommentsOnPage(globalAccessToken, defaultUrn);
+        loadCommentsOnPage(globalAccessToken, currentUrn);
     });
 
     return false;
 }
  
-var onSubmitUrl = function() {
 
-    currentThreadName = $("#FriendlyName").val();
-    var subject = $("#Subject").val();
-    var channel = $("#Channel").val();
-    var category = $("#Subkey").val();
-    var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 channel: ' + channel + ' category: ' + category + ' subject: ' + subject;
-    var newURN = btoa(urnVal);
-    
-    defaultUrn = newURN;
-    loadCommentsOnPage(globalAccessToken, defaultUrn);
-}
 
 var onSaveUrn = function() {
     var friendlyName = $("#FriendlyName").val();
     currentThreadName = friendlyName;
     var subject = $("#Subject").val();
     var channel = $("#Channel").val();
-    var category = $("#Subkey").val();
+    var category = $("#Category").val();
     var urnVal = 'urn:adsk.objects:os.object:model2016-06-23-18-48-14 channel: ' + channel + ' category: ' + category + ' subject: ' + subject;
     var newURN = btoa(urnVal);
 
@@ -156,27 +159,51 @@ var onSaveUrn = function() {
     channelObject.friendly_name = friendlyName;
     channelObject.subject = subject;
     channelObject.channel = channel;
-    channelObject.subkey = category;
+    channelObject.category = category;
     channelObject.urn = newURN;
 
-//    $("#prevOutput").val(defaultUrn);
-//    var $UrnOutput = $("#UrnOutput").val(urnVal);
-    defaultUrn = newURN;
-//    $("#currOutput").val(defaultUrn);
-    loadCommentsOnPage(globalAccessToken, defaultUrn);
 
-    postPGChannelAjax(channelObject);
-    loadThreadsOnPage();
+    currentUrn = newURN;
+
+    loadCommentsOnPage(globalAccessToken, currentUrn);
+
+    var addChannel = postPGChannelAjax(channelObject);
+    addChannel.done(function(){
+        loadThreadsOnPage()
+    });
 }
 
-var setupAuthLink = function() {
-    var $authArea = $('#authArea');
-    var $link = $('<a href="https://developer.api.autodesk.com/authentication/v1/authorize?response_type=code&client_id=' + 
-        clientId + '&redirect_uri=' +
-        callbackUrl + '&scope=' +
-        scope + '">Oxygen Login</a>');
-    $authArea.empty();
-    $authArea.append($link);
+var onDisplayFilterThreads = function(){
+    displayingFavorites = false;
+    onFilterThreads();
+}
+
+var onDisplayFavoriteThreads = function(){
+    displayingFavorites = true;
+    onClearFilter();
+}
+
+var onFilterThreads = function() {
+    var friendlyName = $("#FriendlyName").val();
+    var subject = $("#Subject").val();
+    var channel = $("#Channel").val();
+    var category = $("#Category").val();
+
+    var query = '?friendly_name__like=%'+ friendlyName +
+                '%&channel__like=%' + channel +
+                '%&category__like=%' + category +
+                '%&subject__like=%' + subject + '%';
+                
+    loadThreadsOnPage(query);
+}
+
+var onClearFilter = function() {
+    $("#FriendlyName").val('');
+    $("#Subject").val('');
+    $("#Channel").val('');
+    $("#Category").val('');
+
+    loadThreadsOnPage();
 }
 
 $(document).ready(function () {
@@ -184,8 +211,7 @@ $(document).ready(function () {
     $.get("/api/accessToken", function (accessToken) {
         globalAccessToken = accessToken;
         console.log("globalAccessToken: " + globalAccessToken);
-        //loadCommentsOnPage(accessToken, defaultUrn);
-        //doChannelSample(accessToken);
         loadThreadsOnPage();
     });
 });
+
