@@ -11,6 +11,7 @@ module.exports = (function() {
 
       Channel.query()
         .where(this.params.query)
+        .orderBy('channel')
         .end((err, models) => {
 
           this.respond(err || models);
@@ -38,12 +39,6 @@ module.exports = (function() {
       });
 
     }
-
-        // create() {
-    //   findOrCreateBy('urn', this.params.body, (err, model) => {
-    //     this.respond(err || model);
-    //   });
-    // 
 
     update() {
 
